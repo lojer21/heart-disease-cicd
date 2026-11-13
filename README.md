@@ -1,0 +1,182 @@
+# 🫀 Heart Disease Prediction — AWS CI/CD Pipeline
+
+> **Educational Research Project** | Machine Learning + AWS Cloud + Amazon Bedrock Generative AI
+
+[![CI/CD Pipeline](https://github.com/YOUR_USERNAME/heart-disease-cicd/actions/workflows/cicd.yml/badge.svg)](https://github.com/YOUR_USERNAME/heart-disease-cicd/actions)
+
+---
+
+## Project Overview
+
+An enterprise-grade cardiovascular risk prediction platform combining:
+- **Random Forest Classifier** (81.97% test accuracy) trained on the UCI Cleveland Heart Disease dataset
+- **Amazon Bedrock Generative AI** (Claude 3 Haiku) for clinical insight narratives
+- **AWS EC2** for Streamlit application hosting
+- **GitHub Actions CI/CD** for automated testing and zero-downtime deployment
+- **AWS IAM Role** (`HeartDiseaseEC2Role`) for secure Bedrock access
+
+---
+
+## Architecture
+
+```
+GitHub Push → GitHub Actions CI/CD Pipeline
+                     │
+           ┌─────────▼──────────┐
+           │  CI: Test & Lint   │   (ubuntu-latest runner)
+           │  - flake8 syntax   │
+           │  - train_model.py  │
+           │  - pytest (21 tests)│
+           └─────────┬──────────┘
+                     │  (all tests pass)
+           ┌─────────▼──────────┐
+           │  CD: Deploy EC2    │
+           │  - rsync files     │
+           │  - pip install     │
+           │  - retrain model   │
+           │  - systemctl restart│
+           └─────────┬──────────┘
+                     │
+           ┌─────────▼──────────┐
+           │   AWS EC2 Instance  │
+           │   Ubuntu Linux      │
+           │   Port 8501 (HTTP)  │
+           │                     │
+           │   IAM: HeartDisease │
+           │        EC2Role      │
+           │                     │
+           │  → Amazon Bedrock   │
+           │    Claude 3 Haiku   │
+           └─────────────────────┘
+```
+
+---
+
+## Project Structure
+
+```
+heart-disease-cicd/
+├── app.py                          ← Streamlit application (Bedrock + ML)
+├── requirements.txt                ← Python dependencies
+├── .gitignore
+├── README.md
+│
+├── dataset/
+│   └── heart.csv                   ← UCI Cleveland Heart Disease (303 records)
+│
+├── models/
+│   ├── random_forest_model.pkl     ← Trained Random Forest (auto-generated)
+│   └── metrics.json                ← Training metrics (auto-generated)
+│
+├── scripts/
+│   ├── train_model.py              ← Model training pipeline
+│   ├── setup_ec2.sh                ← One-time EC2 server setup
+│   └── heart-disease-app.service  ← systemd service config
+│
+├── tests/
+│   └── test_model.py               ← 21 automated tests (pytest)
+│
+└── .github/
+    └── workflows/
+        └── cicd.yml                ← GitHub Actions CI/CD pipeline
+```
+
+---
+
+## Model Performance
+
+| Metric | Value |
+|---|---|
+| Dataset | UCI Cleveland Heart Disease |
+| Records | 303 (302 after duplicate removal) |
+| Features | 13 clinical biomarkers |
+| Algorithm | Random Forest Classifier |
+| Train / Test | 241 / 61 (80/20 stratified) |
+| Baseline Accuracy | 80.33% |
+| **Tuned Accuracy** | **81.97%** |
+| CV Score | 83.43% |
+| ROC-AUC | 0.8950 |
+| Best Params | n_estimators=200, max_depth=None, min_samples_leaf=2, min_samples_split=5 |
+
+---
+
+## AWS Services Used
+
+| Service | Purpose |
+|---|---|
+| **EC2** | Hosts the Streamlit application (port 8501) |
+| **IAM** | `HeartDiseaseEC2Role` — grants EC2 access to Bedrock |
+| **Amazon Bedrock** | Claude 3 Haiku for GenAI clinical insights |
+| **Security Groups** | Inbound: port 22 (SSH), 8501 (App) |
+
+---
+
+## CI/CD Pipeline Flow
+
+```
+git push main
+     │
+     ▼
+[Job 1: test-and-validate]
+     ├── Checkout code
+     ├── Set up Python 3.10
+     ├── pip install requirements
+     ├── flake8 lint (syntax check)
+     ├── python scripts/train_model.py
+     ├── pytest tests/ -v (21 tests)
+     └── Upload model artifact
+     │
+     ▼ (only if Job 1 passes)
+[Job 2: deploy-to-ec2]
+     ├── Configure SSH key
+     ├── rsync files to EC2
+     ├── pip install on EC2
+     ├── python scripts/train_model.py (EC2)
+     ├── systemctl restart heart-disease-app
+     └── Health check (HTTP 200)
+```
+
+---
+
+## Setup Guide
+
+### 1. GitHub Repository Setup
+
+```bash
+git init
+git add .
+git commit -m "Initial commit — Heart Disease CI/CD"
+git remote add origin https://github.com/YOUR_USERNAME/heart-disease-cicd.git
+git push -u origin main
+```
+
+### 2. GitHub Secrets (Settings → Secrets → Actions)
+
+| Secret Name | Value |
+|---|---|
+| `EC2_SSH_KEY` | Contents of your `.pem` key file |
+| `EC2_HOST` | Your EC2 public IP address |
+| `EC2_USER` | `ec2-user` (Amazon Linux) or `ubuntu` |
+
+### 3. EC2 First-Time Setup
+
+```bash
+# SSH into your EC2 instance
+ssh -i HeartDisease-key.pem ec2-user@YOUR_EC2_IP
+
+# Upload project files via rsync (or git clone)
+# Then run setup script:
+bash scripts/setup_ec2.sh
+```
+
+### 4. Access the Application
+
+```
+http://YOUR_EC2_PUBLIC_IP:8501
+```
+
+---
+
+## Disclaimer
+
+This application is developed for **educational and research purposes only**. Predictions generated by machine learning and Generative AI models must not be used for clinical diagnosis, treatment decisions, or emergency assessment. Always consult a qualified physician for cardiovascular concerns.

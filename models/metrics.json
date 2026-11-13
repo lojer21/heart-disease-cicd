@@ -1,0 +1,55 @@
+{
+  "baseline_accuracy": 80.33,
+  "tuned_test_accuracy": 81.97,
+  "best_cv_score": 83.43,
+  "roc_auc": 0.895,
+  "best_params": {
+    "max_depth": null,
+    "min_samples_leaf": 2,
+    "min_samples_split": 5,
+    "n_estimators": 200
+  },
+  "feature_importance": {
+    "age": 0.08052903893672456,
+    "sex": 0.029135910943548827,
+    "cp": 0.11222993465433025,
+    "trestbps": 0.056245500710415376,
+    "chol": 0.063733702246485,
+    "fbs": 0.005565533433577283,
+    "restecg": 0.020549076433503156,
+    "thalach": 0.12147125033684492,
+    "exang": 0.06028832639972743,
+    "oldpeak": 0.1277462611241153,
+    "slope": 0.05277749804384895,
+    "ca": 0.17198557388674085,
+    "thal": 0.09774239285013818
+  },
+  "confusion_matrix": [
+    [
+      23,
+      5
+    ],
+    [
+      6,
+      27
+    ]
+  ],
+  "training_records": 241,
+  "testing_records": 61,
+  "features": [
+    "age",
+    "sex",
+    "cp",
+    "trestbps",
+    "chol",
+    "fbs",
+    "restecg",
+    "thalach",
+    "exang",
+    "oldpeak",
+    "slope",
+    "ca",
+    "thal"
+  ],
+  "random_state": 323
+}
