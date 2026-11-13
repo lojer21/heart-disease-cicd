@@ -492,14 +492,19 @@ def style_figure(fig: go.Figure, height: int = 340) -> go.Figure:
 # --------------------------------------------------------------------------- #
 def _resolve_model_path() -> Path | None:
     env_path = os.environ.get("MODEL_PATH")
+    app_dir = Path(__file__).resolve().parent
     candidates = [
         Path(env_path) if env_path else None,
+        app_dir / "models" / "random_forest_model.pkl",
+        app_dir / "models" / "heart_disease_model.pkl",
+        app_dir / "random_forest_model.pkl",
         PROJECT_ROOT / "models" / "heart_disease_model.pkl",
         PROJECT_ROOT / "models" / "random_forest_model.pkl",
         PROJECT_ROOT / "random_forest_model.pkl",
         PROJECT_ROOT / "heart_pred" / "random_forest_model.pkl",
-        Path("random_forest_model.pkl"),
+        Path("models/random_forest_model.pkl"),
         Path("models/heart_disease_model.pkl"),
+        Path("random_forest_model.pkl"),
     ]
     for c in candidates:
         if c and c.exists() and c.is_file():
